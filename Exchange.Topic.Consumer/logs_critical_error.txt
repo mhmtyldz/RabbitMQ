@@ -1,0 +1,6 @@
+log = Info - Error - Warning
+log = Critical - Error - Warning
+log = Critical - Critical - Warning
+log = Warning - Warning - Warning
+log = Warning - Critical - Warning
+log = Error - Info - Warning

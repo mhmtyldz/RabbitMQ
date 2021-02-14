@@ -33,7 +33,7 @@ namespace RabbitMQ.Publisher
                         //Yukarıda tanımladığım basic propertiesi basic publishe set ediyorum
                         var properties = channel.CreateBasicProperties();
                         properties.Persistent = true;
-                        //Artık instance miz çökse bile mesaj kuyrukta durcak basicProperties ve yukarıda kuyruğu tanımlarken kullandığımız
+                        //Artık instance miz çökse bile mesaj kuyrukta durcak basicProperties=true ve yukarıda kuyruğu tanımlarken kullandığımız
                         //durable true sebebi ile
                         channel.BasicPublish("", routingKey: "task_queue", basicProperties: properties, body: bodyByte);
 
