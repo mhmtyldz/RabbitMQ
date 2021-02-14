@@ -6,36 +6,50 @@ namespace RabbitMQ.Publisher
 {
     class Program
     {
-        static void Main(string[] args)
+        //Bu yapılanlar ikinci versiyon içindir.
+        static void Main(string[] args) //arguman kullandığımız için projeye dizinine powershelde açıp dotnet run mesaj diyorum ki çalışsın
         {
-            var factory = new ConnectionFactory() { HostName = "localhost" }; // Rabbitmq clientına bağlanmak için bir tane factory oluşturuyorum.
-            //factory.Uri = new Uri(""); // Burası bağlanacağım url ben locale bağlandım
-            //Bağlantı açıyorum alttaki kodda
+            //var factory = new ConnectionFactory() { HostName = "localhost" };
+            var factory = new ConnectionFactory();
+            factory.Uri = new Uri("amqps://nyvihzls:rLqUu-fCPotv9ojMMNnrr7mbOH9oKFLS@eagle.rmq.cloudamqp.com/nyvihzls");
             using (var connection = factory.CreateConnection())
             {
-                //kanal oluşturmam gerekiyor ve kanal oluşturma kodları
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare(queue: "helloworld", durable: false, exclusive: false, arguments: null); //Kuyruk oluşturuyorum. ikinci parametrem durable, 
-                    //durable false ise rabbitmq restart atarsa mesajlarımın hepsi uçar.
-                    //(Memoryde duruyor şuan çünkü daha hızlı olması için) ama true dersek 
-                    //disktte tutcak ve hiçb irşekilde mesaklarım restart durumunda kaybolmicak
-                    //exclusive bu kuyruğa sadece 1 kanal mı yoksa başka kanallarda bağlanabilsin mi demek istiyoruz. False dersek diğerleri de bağlanır.
-                    //autodelete bir kuyrukta 20 mesaj var son mesajda kuyruktan çıkarsa bu kuyruk silinsin mi silinmesin mi demek istiyoruz. 
-                    //false silinsin true silinmesin.
-                    string message = "Hello World";
-                    //Mesajlarımı byte olarak göndermemiz lazım. Word pdf image text herşeyi byte çevirip gönderebilieceğimiz için stringi byte a çevircem
-                    var bodyByte = Encoding.UTF8.GetBytes(message);
+                    //Öncelikle kuyruğun ismini değiştiriyorum
+                    //Mesaj sağlama almak için durable i true ya alıyorum
+                    channel.QueueDeclare(queue: "task_queue", durable: true, exclusive: false, arguments: null);
+                    //string message = "Hello World";
+                    //Amacım 1 değil 10 tane kuyruğa mesaj göndermek o yüzden for döngüsü içerisine yazıyorum
+                    string message = GetMessage(args);
+                    for (int i = 1; i < 11; i++)
+                    {
+                        var bodyByte = Encoding.UTF8.GetBytes($"{message}-{i}");
 
-                    //Alt satırdaki kodda mesajı kuyruğuma gönderiyorum.
-                    channel.BasicPublish("", routingKey: "helloworld", null, body: bodyByte);//exchange kullanmadığımız için boş geçiyorum default exchange geçsin.
 
-                    Console.WriteLine("Mesajınız Gönderilmiştir.");
+                        //Kuyruğu sağlama aldım durable ile şimdi de mesajı sağlama almam lazım
+                        //Mutlaka ve mutlaka ikisini de sağlama almam gerekiyor.
+                        //RoutingKeyi de channeldaki kuyruğun ismi ile aynı yapıyorum
+                        //Yukarıda tanımladığım basic propertiesi basic publishe set ediyorum
+                        var properties = channel.CreateBasicProperties();
+                        properties.Persistent = true;
+                        //Artık instance miz çökse bile mesaj kuyrukta durcak basicProperties ve yukarıda kuyruğu tanımlarken kullandığımız
+                        //durable true sebebi ile
+                        channel.BasicPublish("", routingKey: "task_queue", basicProperties: properties, body: bodyByte);
+
+                        Console.WriteLine("Mesajınız Gönderilmiştir.");
+                    }
+
                 }
 
                 Console.WriteLine("Çıkış yapmak için tıklayınız..");
                 Console.ReadLine();
             }
+        }
+
+        private static string GetMessage(string[] args)
+        {
+            return args[0];
         }
     }
 }

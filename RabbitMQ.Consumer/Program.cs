@@ -2,41 +2,65 @@
 using RabbitMQ.Client.Events;
 using System;
 using System.Text;
+using System.Threading;
 
 namespace RabbitMQ.Consumer
 {
     class Program
     {
+        //Bu yapılanlar ikinci versiyon içindir.
         static void Main(string[] args)
         {
-            var factory = new ConnectionFactory() { HostName = "localhost" }; // Rabbitmq clientına bağlanmak için bir tane factory oluşturuyorum.
-            //factory.Uri = new Uri(""); // Burası bağlanacağım url ben locale bağlandım
-            //Bağlantı açıyorum alttaki kodda
+            //var factory = new ConnectionFactory() { HostName = "localhost" };
+            var factory = new ConnectionFactory();
+            factory.Uri = new Uri("amqps://nyvihzls:rLqUu-fCPotv9ojMMNnrr7mbOH9oKFLS@eagle.rmq.cloudamqp.com/nyvihzls");
             using (var connection = factory.CreateConnection())
             {
-                //kanal oluşturmam gerekiyor ve kanal oluşturma kodları
                 using (var channel = connection.CreateModel())
                 {
-                    //Publisher da kuyruğu nasıl oluşturduysak aynı şekilde burada da kuyruğu o şekilde oluşturmalıyız.
-                    //Queue methodunda belirttiğimiz methodların hepsi aynı olmak zorunda yoksa eşleşemedeği için
-                    //İşlemimiz gerçekleşmeyecektir
-                    channel.QueueDeclare(queue: "helloworld", durable: false, exclusive: false, arguments: null);
+                    channel.QueueDeclare(queue: "task_queue", durable: true, exclusive: false, arguments: null);
 
-                    //Kuyruktaki mesajları alması için bir event oluşturuyorum. Ve dinleyeceği kanalı belirtiyorum.
-                    var consumer = new EventingBasicConsumer(channel); // Kanalı bu şekilde dinletiyorum.
-                    channel.BasicConsume(queue: "helloworld", true, consumer); //autoack true verirsek otomatik olarak doğru da yanlışta olsa kuyruktan sil. Eğer true dersek rabbitmq ya ben belirtcem sil diye 
-                    //Mesajı ne zaman yakalayacağım.Kuyruktaki mesajları alıyorum.
+                    //Eşit dağılım işlemini anlatmıştık. Eşit dağılım işlemi için aşağıdaki methodu kullanıyorum
+                    //PrefetchCount sen bana 1 tane mesaj ver ben sana bu mesajı doğru şekilde hallettikten sonra sen bana 1 tane daha ver
+                    //Aynı anda bana 2 tane mesaj gönderme diyorum  eğer 3 dersem prefetchCounta 3 tane aynı anda mesaj alır
+                    //global false deme sebebimiz tek bir seferde bir tane mesaj alsın istiyorum prefetchCount 2 dersem tek bir seferde iki mesaj gelir
+                    //Global true dersem 5 tane instancem var prefetchCountta da 10 dedim eğerki global : true ise 5 instancem hepsi tplam 10 message alabilir.
+                    //false dersemde 5 instancem tek seferde 10 tane alabilir demek.
+                    channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+                    Console.WriteLine("mesakları bekliyorum.......");
+
+                    var consumer = new EventingBasicConsumer(channel);
+                    //Autoact özelliği var eğerki true olursa mesaj kuyruktan silinir. Ancak biz false yapıyoruz
+                    //Sebebi şu ben bilgi göndericem sen gönderme.  artık mesajı silebilrsin kuyruktan diye ben belirtmek için false yapıyorum. 
+                    channel.BasicConsume(queue: "task_queue", autoAck: false, consumer);
                     consumer.Received += (model, ea) =>
                     {
-                        var bodyByte = ea.Body.Span; //Kuyruktaki göndermiş olduğum mesajı alıyorum. String göndermiştim. Stringe çevirmeliyim. Eğerki model gönderseydim serilize deseriliaze yapmalıydım
+                        var bodyByte = ea.Body.Span;
                         var message = Encoding.UTF8.GetString(bodyByte);
-                        Console.WriteLine("Mesaj alındı : " + message);
-                    };
-                }
 
-                Console.WriteLine("Çıkış yapmak için tıklayınız..");
-                Console.ReadLine();
+                        Console.WriteLine("Mesaj alındı : " + message);
+                        int time = int.Parse(GetMessage(args));
+                        //Thread kullanmamın sebebi Bizim consumerlarımızın iyi kötü makine de çalıştığınu simule etmek adına
+                        //Uygulamayı uyutuyorum. Yeni bir instance oluşturcam
+
+                        Thread.Sleep(time);
+                        Console.WriteLine("Mesaj işlendi...");
+
+                        //Mesajın işlendiğini brokera göndermem gerekiyor 
+                        //Alt satırdaki kod. Ben mesajı işledim sen artık bu mesajı kuyruktan silebilirsin anlamına geliyor
+
+                        channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+
+                    };
+                    Console.WriteLine("Çıkış yapmak için tıklayınız..");
+                    Console.ReadLine();
+                }
             }
+        }
+
+        private static string GetMessage(string[] args)
+        {
+            return args[0];
         }
     }
 }
