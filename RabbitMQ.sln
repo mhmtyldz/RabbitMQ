@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29519.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQ.Publisher", "RabbitMQ.Publisher\RabbitMQ.Publisher.csproj", "{499F27F5-9D54-4570-AFD0-9AC944D63241}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQ.Publisher", "RabbitMQ.Publisher\RabbitMQ.Publisher.csproj", "{499F27F5-9D54-4570-AFD0-9AC944D63241}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQ.Consumer", "RabbitMQ.Consumer\RabbitMQ.Consumer.csproj", "{F62AD409-4081-47D5-8062-8E8AE685290D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RabbitMQ.Consumer", "RabbitMQ.Consumer\RabbitMQ.Consumer.csproj", "{F62AD409-4081-47D5-8062-8E8AE685290D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exhange.Fanout.Publisher", "Exhange.Fanout\Exhange.Fanout.Publisher.csproj", "{B78A1E43-20C8-4F5E-AEF8-80F5FE188302}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Exchange.Fanout.Consumer", "Exchange.Fanout.Consumer\Exchange.Fanout.Consumer.csproj", "{BCAD0601-EF9B-439E-85F0-E3F9FDD92FF6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{F62AD409-4081-47D5-8062-8E8AE685290D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F62AD409-4081-47D5-8062-8E8AE685290D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F62AD409-4081-47D5-8062-8E8AE685290D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B78A1E43-20C8-4F5E-AEF8-80F5FE188302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B78A1E43-20C8-4F5E-AEF8-80F5FE188302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B78A1E43-20C8-4F5E-AEF8-80F5FE188302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B78A1E43-20C8-4F5E-AEF8-80F5FE188302}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCAD0601-EF9B-439E-85F0-E3F9FDD92FF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCAD0601-EF9B-439E-85F0-E3F9FDD92FF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCAD0601-EF9B-439E-85F0-E3F9FDD92FF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCAD0601-EF9B-439E-85F0-E3F9FDD92FF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
